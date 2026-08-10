@@ -220,30 +220,32 @@ fi
 # --- 7. Rendszer frissítése ---
 echo
 echo -e "${BOLD}${CYAN}═══ Rendszer frissítése ═══${NC}"
-apt update
-apt upgrade -y
-success "Rendszer frissítve (apt update + apt upgrade)."
-CHANGES_APTUPDATED="Igen"
+if apt update && apt upgrade -y; then
+    success "Rendszer frissítve (apt update + apt upgrade)."
+    CHANGES_APTUPDATED="Igen"
+else
+    warning "A rendszerfrissítés sikertelen (hálózati hiba vagy dpkg lock?)"
+    warning "A többi beállítás érvényben maradt."
+fi
 
 # --- 8. SSH konfiguráció ---
 echo
 echo -e "${BOLD}${CYAN}═══ SSH konfiguráció ═══${NC}"
-SSHD_CONFIG="/etc/ssh/sshd_config"
-backup_file "$SSHD_CONFIG"
 
-if grep -q '^PermitRootLogin' "$SSHD_CONFIG"; then
-    sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' "$SSHD_CONFIG"
-else
-    echo "PermitRootLogin no" >> "$SSHD_CONFIG"
+SSHD_DROPIN_DIR="/etc/ssh/sshd_config.d"
+SSHD_DROPIN_FILE="${SSHD_DROPIN_DIR}/99-vps-setup.conf"
+
+mkdir -p "$SSHD_DROPIN_DIR"
+
+if [[ -f "$SSHD_DROPIN_FILE" ]]; then
+    backup_file "$SSHD_DROPIN_FILE"
 fi
+
+echo "PermitRootLogin no" > "$SSHD_DROPIN_FILE"
 success "Root SSH bejelentkezés: tiltva (PermitRootLogin no)"
 
 if [[ -n "$CHANGES_SSH_PORT" && "$CHANGES_SSH_PORT" != "22" ]]; then
-    if grep -q '^Port ' "$SSHD_CONFIG"; then
-        sed -i "s/^Port .*/Port $CHANGES_SSH_PORT/" "$SSHD_CONFIG"
-    else
-        echo "Port $CHANGES_SSH_PORT" >> "$SSHD_CONFIG"
-    fi
+    echo "Port $CHANGES_SSH_PORT" >> "$SSHD_DROPIN_FILE"
     success "SSH port beállítva: $CHANGES_SSH_PORT"
 fi
 
@@ -255,8 +257,9 @@ if sshd -t; then
     success "SSH szolgáltatás újraindítva."
     CHANGES_SSHCONFIG="Igen"
 else
-    error "SSH konfiguráció hibás! Ellenőrizd: sshd -t"
-    error "A biztonsági mentésből visszaállíthatod az eredeti konfigurációt."
+    rm -f "$SSHD_DROPIN_FILE"
+    error "SSH konfiguráció hibás! A 99-vps-setup.conf törölve."
+    error "Az eredeti beállítások változatlanok."
     CHANGES_SSHCONFIG="HIBA!"
 fi
 
