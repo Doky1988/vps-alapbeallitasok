@@ -234,7 +234,7 @@ fi
 echo
 echo -e "${BOLD}${CYAN}═══ Fájlkezelő telepítése ═══${NC}"
 if confirm "Midnight Commander telepítése?"; then
-    if apt install -y -qq mc 2>/dev/null; then
+    if DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -o=Dpkg::Use-Pty=0 mc >/dev/null 2>&1; then
         success "Midnight Commander telepítve."
     else
         warning "Midnight Commander telepítése sikertelen."
