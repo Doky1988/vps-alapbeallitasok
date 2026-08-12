@@ -221,7 +221,7 @@ fi
 echo
 echo -e "${BOLD}${CYAN}═══ Rendszer frissítése ═══${NC}"
 info "Frissítés folyamatban..."
-if apt update -qq 2>/dev/null && apt upgrade -y -qq 2>/dev/null; then
+if apt update -qq >/dev/null 2>&1 && apt upgrade -y -qq >/dev/null 2>&1; then
     success "Rendszer frissítve (apt update + apt upgrade)."
     CHANGES_APTUPDATED="Igen"
 else
