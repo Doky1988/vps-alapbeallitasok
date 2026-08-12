@@ -220,9 +220,22 @@ fi
 # --- 7. Rendszer frissítése ---
 echo
 echo -e "${BOLD}${CYAN}═══ Rendszer frissítése ═══${NC}"
-info "Frissítés folyamatban..."
-if DEBIAN_FRONTEND=noninteractive apt-get -y -qq -o=Dpkg::Use-Pty=0 update >/dev/null 2>&1 && \
-   DEBIAN_FRONTEND=noninteractive apt-get -y -qq -o=Dpkg::Use-Pty=0 upgrade >/dev/null 2>&1; then
+echo -ne "${BLUE}[*]${NC} Frissítés folyamatban"
+
+DEBIAN_FRONTEND=noninteractive apt-get -y -qq -o=Dpkg::Use-Pty=0 update >/dev/null 2>&1 && \
+DEBIAN_FRONTEND=noninteractive apt-get -y -qq -o=Dpkg::Use-Pty=0 upgrade >/dev/null 2>&1 &
+APT_PID=$!
+
+while kill -0 $APT_PID 2>/dev/null; do
+    echo -n "."
+    sleep 1
+done
+wait $APT_PID
+APT_EXIT=$?
+
+echo
+
+if [ $APT_EXIT -eq 0 ]; then
     success "Rendszer frissítve (apt update + apt upgrade)."
     CHANGES_APTUPDATED="Igen"
 else
