@@ -221,7 +221,8 @@ fi
 echo
 echo -e "${BOLD}${CYAN}═══ Rendszer frissítése ═══${NC}"
 info "Frissítés folyamatban..."
-if apt update -qq >/dev/null 2>&1 && apt upgrade -y -qq >/dev/null 2>&1; then
+if DEBIAN_FRONTEND=noninteractive apt-get -y -qq -o=Dpkg::Use-Pty=0 update >/dev/null 2>&1 && \
+   DEBIAN_FRONTEND=noninteractive apt-get -y -qq -o=Dpkg::Use-Pty=0 upgrade >/dev/null 2>&1; then
     success "Rendszer frissítve (apt update + apt upgrade)."
     CHANGES_APTUPDATED="Igen"
 else
