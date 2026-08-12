@@ -10,7 +10,7 @@
 
 <p align="center"><strong>Interaktív bash szkript friss Debian/Ubuntu VPS-ek alapvető biztonsági beállításaihoz.</strong></p>
 
-<p align="center">Végigvezet a szükséges lépéseken: hosztnév, SSH port, időzóna, sudo felhasználó létrehozása, root SSH tiltása, rendszerfrissítés — mindezt biztonsági mentésekkel és részletes összegzéssel.</p>
+<p align="center">Végigvezet a szükséges lépéseken: hosztnév, SSH port, időzóna, sudo felhasználó létrehozása, Midnight Commander telepítés, root SSH tiltása, rendszerfrissítés — mindezt biztonsági mentésekkel és részletes összegzéssel.</p>
 
 ---
 
@@ -24,8 +24,10 @@
 - **Időzóna beállítása** — pl. `Europe/Budapest`
 - **Sudo felhasználó létrehozása** — új felhasználó, 22 karakteres véletlenszerű jelszóval
 - **NOPASSWD sudo** — jelszó nélküli sudo jog az új felhasználónak
-- **Rendszerfrissítés** — `apt update` és `apt upgrade` futtatása
+- **Midnight Commander** — opcionális fájlkezelő telepítés
+- **Rendszerfrissítés** — `apt update` és `apt upgrade` futtatása (kimenet rejtett, `-qq` mód)
 - **Root SSH tiltása** — közvetlen root bejelentkezés letiltása (`PermitRootLogin no`)
+- **SSH drop-in konfiguráció** — `/etc/ssh/sshd_config.d/99-vps-setup.conf` használata az eredeti fájl módosítása helyett (cloud-init kompatibilitás)
 - **SSH konfiguráció ellenőrzése** — `sshd -t` validálás, majd szolgáltatás újraindítás
 - **Belépési adatok mentése** — `/root/<felhasználó>_credentials.txt` fájlba, `chmod 600` joggal
 - **Részletes összegzés** — minden elvégzett módosítás áttekintése a futás végén
@@ -69,10 +71,11 @@ A szkript végigvezet a beállításokon — minden lépésnél megadhatod a kí
 4. **SSH port** — add meg az új portot, vagy Enter a 22-höz
 5. **Időzóna** — add meg az időzónát (pl. `Europe/Budapest`), vagy Enter a jelenlegihez
 6. **Sudo felhasználó** — add meg a felhasználónevet, vagy Enter a kihagyáshoz
-7. **Rendszerfrissítés** — automatikusan lefut
-8. **SSH konfiguráció** — root tiltás, port csere, validálás, újraindítás
-9. **Belépési adatok mentése** — fájlba mentés (ha volt felhasználó létrehozás)
-10. **Összegzés és figyelmeztetések**
+7. **Rendszerfrissítés** — automatikusan lefut (rejtett kimenettel)
+8. **Midnight Commander** — opcionális telepítés (`i` = igen, Enter = kihagy)
+9. **SSH konfiguráció** — root tiltás, port csere drop-in fájlba, validálás, újraindítás
+10. **Belépési adatok mentése** — fájlba mentés (ha volt felhasználó létrehozás)
+11. **Összegzés és figyelmeztetések**
 
 ---
 
@@ -109,10 +112,14 @@ Rendszerinformációk:
 [✓] NOPASSWD sudo beállítva: /etc/sudoers.d/10-felhasznalo-nopasswd
 
 ═══ Rendszer frissítése ═══
+[*] Frissítés folyamatban...
 [✓] Rendszer frissítve (apt update + apt upgrade).
 
+═══ Fájlkezelő telepítése ═══
+? Midnight Commander telepítése? [i/N]: i
+[✓] Midnight Commander telepítve.
+
 ═══ SSH konfiguráció ═══
-[✓] Biztonsági mentés: /etc/ssh/sshd_config.backup.20260808_153000
 [✓] Root SSH bejelentkezés: tiltva (PermitRootLogin no)
 [✓] SSH port beállítva: 2222
 [*] SSH konfiguráció ellenőrzése (sshd -t)...
@@ -167,4 +174,4 @@ Kész – a szerver alapvető biztonsági beállításai elvégezve.
 ---
 
 ## ❤️ Készítette: Doky  
-📅 2026.08.08
+📅 2026.08.12
