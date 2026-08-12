@@ -162,8 +162,7 @@ read -r -p "$(echo -e "${CYAN}Időzóna${NC} [$(echo "$CURRENT_TZ")]: ")" NEW_TZ
 NEW_TZ="${NEW_TZ:-$CURRENT_TZ}"
 
 if [[ "$NEW_TZ" != "$CURRENT_TZ" ]]; then
-    if timedatectl list-timezones 2>/dev/null | grep -qxF "$NEW_TZ"; then
-        timedatectl set-timezone "$NEW_TZ"
+    if timedatectl set-timezone "$NEW_TZ" 2>/dev/null; then
         success "Időzóna beállítva: $NEW_TZ"
         CHANGES_TIMEZONE="$NEW_TZ"
     else
