@@ -4,7 +4,7 @@ set -euo pipefail
 #===============================================================================
 # Linux Szerver – Biztonsági Beállítások
 # Debian / Ubuntu – Alapvető VPS hardening
-# Készítette: Doky | 2026.08.09
+# Készítette: Doky | 2026.08.12
 #===============================================================================
 
 RED='\033[0;31m'
@@ -221,7 +221,8 @@ fi
 # --- 7. Rendszer frissítése ---
 echo
 echo -e "${BOLD}${CYAN}═══ Rendszer frissítése ═══${NC}"
-if apt update && apt upgrade -y; then
+info "Frissítés folyamatban..."
+if apt update -qq 2>/dev/null && apt upgrade -y -qq 2>/dev/null; then
     success "Rendszer frissítve (apt update + apt upgrade)."
     CHANGES_APTUPDATED="Igen"
 else
@@ -229,7 +230,20 @@ else
     warning "A többi beállítás érvényben maradt."
 fi
 
-# --- 8. SSH konfiguráció ---
+# --- 8. Midnight Commander ---
+echo
+echo -e "${BOLD}${CYAN}═══ Fájlkezelő telepítése ═══${NC}"
+if confirm "Midnight Commander telepítése?"; then
+    if apt install -y -qq mc 2>/dev/null; then
+        success "Midnight Commander telepítve."
+    else
+        warning "Midnight Commander telepítése sikertelen."
+    fi
+else
+    info "Midnight Commander telepítés kihagyva."
+fi
+
+# --- 9. SSH konfiguráció ---
 echo
 echo -e "${BOLD}${CYAN}═══ SSH konfiguráció ═══${NC}"
 
@@ -264,7 +278,7 @@ else
     CHANGES_SSHCONFIG="HIBA!"
 fi
 
-# --- 9. Credentials mentése ---
+# --- 10. Credentials mentése ---
 echo
 echo -e "${BOLD}${CYAN}═══ Belépési adatok mentése ═══${NC}"
 if [[ -n "$NEW_USER" ]] && [[ -n "${RANDOM_PASSWORD:-}" ]]; then
@@ -305,7 +319,7 @@ else
     fi
 fi
 
-# --- 10. Részletes összegzés ---
+# --- 11. Részletes összegzés ---
 echo
 echo -e "${BOLD}${CYAN}"
 echo "========================================"
@@ -346,7 +360,7 @@ else
     echo -e "    ${YELLOW}[!]${NC} SSH konfiguráció nem módosult"
 fi
 
-# --- 11. Figyelmeztetések ---
+# --- 12. Figyelmeztetések ---
 echo
 echo -e "${BOLD}${YELLOW}========================================"
 center "FIGYELEM!" 40
